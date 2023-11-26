@@ -1,41 +1,90 @@
-import { Button, StyleSheet, View } from "react-native";
-import ActionCard, { ActionType, IAction } from "../component/ActionCard";
+import { Button, Card, FAB } from "@rneui/themed";
+import { ScrollView, StyleSheet, View } from "react-native";
+import ActionCard, { ActionType } from "../component/ActionCard";
+import { useState } from "react";
 
 export default function Home (): JSX.Element{
-    let actions = getActionList();
-    let actionCards = [];
+    const [unselectedActions, setUnselectedActions] = useState(initActionList());
+    const [selectedActions, setSelectedActions] = useState([] as ActionType[]);
+    const [selectedAction, setSelectedAction] = useState<ActionType>();
 
-    for(let i = 0; i<actions.length;i++){
-        actionCards.push(
-            <ActionCard action={actions[i]} key={i}></ActionCard>
-        );
-    }
+    let keyU = 0;
+    let keyS = 0;
+
+    const onCardPickPress = () => {
+        let indexToRemove = Math.floor(Math.random() * unselectedActions.length);
+        let selectedAction = unselectedActions.splice(indexToRemove, 1)[0];
+        if(selectedAction){
+            selectedActions.push(selectedAction);
+            setSelectedAction(selectedAction);
+            setSelectedActions([...selectedActions]);
+            setUnselectedActions([...unselectedActions,]);
+        }
+    };
 
     return (
         <View style={styles.container}>
-            {actionCards}
-            <Button title="Pegar" color="#841584"/>
+            <ScrollView>
+                <Card>
+                    <Card.Title>AÇÕES DISPONÍVEIS</Card.Title>
+                    <Card.Divider/>
+                    <View style={styles.cards}>
+                        {unselectedActions.map(action => (
+                            <ActionCard action={action} key={++keyU}></ActionCard>
+                        ))}
+                    </View>
+                </Card>
+                <Card>
+                    <Card.Title>AÇÃO SELECIONADA</Card.Title>
+                    <View style={styles.selectedCard}>
+                        <ActionCard size="lg" action={selectedAction}></ActionCard>
+                    </View>
+                </Card>
+                <Card>
+                    <Card.Title>AÇÕES INDISPONÍVEIS</Card.Title>
+                    <Card.Divider/>
+                    <View style={styles.cards}>
+                        {selectedActions.map(action => (
+                            <ActionCard action={action} key={++keyS}></ActionCard>
+                        ))}
+                    </View>
+                </Card>
+            </ScrollView>
+            <View style={styles.actions}>
+                <Button size="lg" onPress={onCardPickPress}>Pegar Carta</Button>
+                {/*<FAB icon={{ name: 'add', color: 'white' }} color="green" size="large"/>*/}
+            </View>
         </View>
     );
 }
 
-function getActionList () : IAction[]{
+function initActionList () : ActionType[]{
     return [
-        { type : ActionType.BASIC, selected : false},
-        { type : ActionType.BASIC, selected : false},
-        { type : ActionType.BASIC, selected : false},
-        { type : ActionType.SPECIAL, selected : false},
-        { type : ActionType.SPECIAL, selected : false},
-        { type : ActionType.ABILITY, selected : false},
+        ActionType.BASIC,
+        ActionType.BASIC,
+        ActionType.BASIC,
+        ActionType.SPECIAL,
+        ActionType.SPECIAL,
+        ActionType.ABILITY,
     ]
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex:1,
+        flex: 1,
+    },
+    cards: {
         flexDirection: "row",
         flexWrap: "wrap",
-        backgroundColor: "silver",
         alignItems: "center",
     },
+    selectedCard:{
+        alignItems: "center",
+    },
+    actions: {
+        bottom: 20,
+        position: "absolute",
+        alignSelf: "center",
+        flexDirection: "row",
+    }
 });

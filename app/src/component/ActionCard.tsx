@@ -6,48 +6,52 @@ export enum ActionType {
     SPECIAL = "ESPECIAL",
     ABILITY = "HABILIDADE",
 }
-
-export interface IAction {
-    type : ActionType,
-    selected : boolean,
-}
  
 type ActionCardProp = PropsWithChildren<{
-    action: IAction;
+    action?: ActionType,
+    size?: string,
 }>;
 
-export default function ActionCard({action}:ActionCardProp):JSX.Element{
+export default function ActionCard({action, size = "md"}:ActionCardProp):JSX.Element{
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, (size=="md"?styles.mdContainer:styles.lgContainer)]}>
             <Text
             style={[
-                styles.sectionTitle,
+                size=="md"?styles.mdSectionTitle:styles.lgSectionTitle,
             ]}>
-            {action.type}
+            {action}
             </Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        minWidth: '48%',
-        paddingVertical: 10,
+    container:{
+        paddingVertical: 15,
         borderBottomWidth: 20,
         borderTopWidth: 20,
         borderLeftWidth: 1,
         borderRightWidth: 1,
         borderRadius: 6,
-        borderColor: "grey",
+        borderColor: "#464140",
         backgroundColor: "white",
         alignItems: "center",
         marginHorizontal: '1%',
         marginBottom: 6,
-
     },
-    sectionTitle: {
-        fontSize: 25,
+    mdContainer: {
+        minWidth: '48%',
+    },
+    lgContainer: {
+        width: 300
+    },
+    mdSectionTitle: {
+        fontSize: 20,
+        fontFamily: 'Cochin',
+    },
+    lgSectionTitle: {
+        fontSize: 40,
         fontFamily: 'Cochin',
     },
 });
