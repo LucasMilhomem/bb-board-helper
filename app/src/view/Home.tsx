@@ -56,6 +56,7 @@ export default function Home (): JSX.Element{
     const reset = () => {
         setUnselectedActions(initActionList());
         setSelectedActions([]);
+        setSelectedAction(undefined);
         toggleConfirmDialog(false);
     };
 
