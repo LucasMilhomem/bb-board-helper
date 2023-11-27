@@ -1,15 +1,21 @@
-import { Button, Card, FAB } from "@rneui/themed";
+import { Button, Card, Dialog, Text } from "@rneui/themed";
+import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import ActionCard, { ActionType } from "../component/ActionCard";
-import { useState } from "react";
 
 export default function Home (): JSX.Element{
     const [unselectedActions, setUnselectedActions] = useState(initActionList());
     const [selectedActions, setSelectedActions] = useState([] as ActionType[]);
     const [selectedAction, setSelectedAction] = useState<ActionType>();
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+    const [actionToConfirm, setActionToConfirm] = useState<undefined|(() => any)>(undefined);
 
     let keyU = 0;
     let keyS = 0;
+
+    const toggleConfirmDialog = (isVisible?:boolean) => {
+        setConfirmModalVisible(isVisible != undefined ? isVisible : !confirmModalVisible);
+    };
 
     const onCardPickPress = () => {
         let indexToRemove = Math.floor(Math.random() * unselectedActions.length);
@@ -20,6 +26,37 @@ export default function Home (): JSX.Element{
             setSelectedActions([...selectedActions]);
             setUnselectedActions([...unselectedActions,]);
         }
+    };
+
+    const onReturnCardPress = () =>{
+        setActionToConfirm(()=>returnCard);
+        toggleConfirmDialog();
+    }
+
+    const returnCard = () => {
+        if(selectedAction){
+            selectedActions.splice(selectedActions.indexOf(selectedAction), 1);
+            setSelectedActions([...selectedActions]);
+
+            unselectedActions.push(selectedAction);
+            unselectedActions.sort(sortActionType);
+            setUnselectedActions([...unselectedActions]);
+
+            setSelectedAction(selectedActions.length > 0? selectedActions[selectedActions.length-1]:undefined);
+        }
+
+        toggleConfirmDialog(false);
+    };
+
+    const onResetPress = () => {
+        setActionToConfirm(()=>reset);
+        toggleConfirmDialog();
+    }
+
+    const reset = () => {
+        setUnselectedActions(initActionList());
+        setSelectedActions([]);
+        toggleConfirmDialog(false);
     };
 
     return (
@@ -49,10 +86,19 @@ export default function Home (): JSX.Element{
                         ))}
                     </View>
                 </Card>
+                <Dialog isVisible={confirmModalVisible} onBackdropPress={toggleConfirmDialog} >
+                <Dialog.Title title="Confirmar"/>
+                <Dialog.Actions>
+                    <Dialog.Button title="Confirmar" onPress={actionToConfirm}/>
+                    <Dialog.Button title="Cancelar" onPress={toggleConfirmDialog}/>
+                </Dialog.Actions>
+                </Dialog>
             </ScrollView>
             <View style={styles.actions}>
-                <Button size="lg" onPress={onCardPickPress}>Pegar Carta</Button>
-                {/*<FAB icon={{ name: 'add', color: 'white' }} color="green" size="large"/>*/}
+
+                <View><Button size="lg" onPress={()=>{onReturnCardPress()}}>DEVOLVER</Button></View>
+                <View><Button size="lg" onPress={onCardPickPress}>PEGAR</Button></View>
+                <View><Button size="lg" onPress={onResetPress}>RESETAR</Button></View>
             </View>
         </View>
     );
@@ -69,6 +115,23 @@ function initActionList () : ActionType[]{
     ]
 }
 
+const sortActionType = (a:ActionType, b:ActionType) => {
+    const map : any = {};
+    map[ActionType.BASIC] = 1;
+    map[ActionType.SPECIAL] = 2;
+    map[ActionType.ABILITY] = 3;
+
+    if (map[a] < map[b]) {
+        return -1;
+    }
+
+    if (map[a] > map[b]) {
+        return 1;
+    }
+
+    return 0;
+}
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -82,9 +145,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     actions: {
-        bottom: 20,
+        width: "100%",
+        flex:1,
+        bottom: 0,
+        paddingBottom: 20,
+        paddingTop: 10,
         position: "absolute",
         alignSelf: "center",
         flexDirection: "row",
+        justifyContent: "space-evenly",
+        backgroundColor: "silver",
     }
 });
