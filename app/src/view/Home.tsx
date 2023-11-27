@@ -87,10 +87,10 @@ export default function Home (): JSX.Element{
                     </View>
                 </Card>
                 <Dialog isVisible={confirmModalVisible} onBackdropPress={toggleConfirmDialog} >
-                <Dialog.Title title="Confirmar"/>
+                <Dialog.Title title="Deseja continuar?"/>
                 <Dialog.Actions>
                     <Dialog.Button title="Confirmar" onPress={actionToConfirm}/>
-                    <Dialog.Button title="Cancelar" onPress={toggleConfirmDialog}/>
+                    <Dialog.Button title="Cancelar" onPress={()=>toggleConfirmDialog()}/>
                 </Dialog.Actions>
                 </Dialog>
             </ScrollView>
